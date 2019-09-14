@@ -8,9 +8,22 @@ from beamngpy import BeamNGpy, Scenario, Road, Vehicle
 from TrackGenUtil import *
 from GenticUtil import *
 
+def writeCriteria(track0):
+
+    p1 = track0[0]
+    p2 = track0[1]
+    diff = p2 - p1
+    orientation = round(math.atan2(diff[1], diff[0]) * 180 / math.pi, 2)
+    file = open("criteria.xml", "w")
+    file.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><criteria xmlns=\"http://drivebuild.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://drivebuild.com drivebuild.xsd\"><author>Sebastian Asen</author><name>Track Test</name><version>1</version><environment>track_0.xml</environment><stepsPerSecond>10</stepsPerSecond><aiFrequency>50</aiFrequency><participants><participant id=\"ego\" model=\"ETK800\">")
+    file.write(f"<initialState x=\"0\" y=\"0\" orientation=\"{orientation}\" movementMode=\"AUTONOMOUS\"/>")
+    file.write("<ai><position id=\"egoPosition\"/><speed id=\"egoSpeed\"/><steeringAngle id=\"egoSteeringAngle\"/><camera id=\"egoFrontCamera\" width=\"800\" height=\"600\" fov=\"60\" direction=\"FRONT\"/><lidar id=\"egoLidar\" radius=\"200\"/><laneCenterDistance id=\"egoLaneDist\"/></ai></participant></participants><success><scArea participant=\"ego\" points=\"(10,10);(-10,10);(-10,-10);(10,-10)\"/></success><failure><or><scDamage participant=\"ego\"/><scLane participant=\"ego\" onLane=\"offroad\"/></or></failure></criteria>")
+    file.close()
+    
+
 def writeTrack(track, nr):
     file = open(f"track_{nr}.xml", "w")
-    head = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><environment xmlns=\"http://drivebuild.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://drivebuild.com ../drivebuild.xsd\"><author>Sebastian Asen</author><timeOfDay>0</timeOfDay><lanes><lane>\n"    
+    head = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><environment xmlns=\"http://drivebuild.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://drivebuild.com drivebuild.xsd\"><author>Sebastian Asen</author><timeOfDay>0</timeOfDay><lanes><lane>\n"    
     tail = "</lane></lanes></environment>"
 
     file.write(head)
@@ -49,7 +62,9 @@ def GenerateTrack(trackLength, sampleRate, show, startBeamNG):
 
     tracks = []
 
-    nr = 0
+    nr = 0    
+
+    first = True
 
     for track in pop:
         track = np.vstack((track, completeAcc(track)))
@@ -59,6 +74,11 @@ def GenerateTrack(trackLength, sampleRate, show, startBeamNG):
         smpl = scaleTrack(smpl, 100, 100)
         smpl = np.array(smpl)
         smpl = np.vstack((smpl, [smpl[0]]))
+
+        if(first):
+            writeCriteria(smpl)
+            first = False
+
         tracks.append(smpl)
         writeTrack(smpl, nr)
         nr += 1

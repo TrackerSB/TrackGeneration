@@ -1,6 +1,9 @@
 # TrackGeneration
 Generates tracks for testing autonomous driving systems with BeamNG.
 
+'Start.py' generates the tracks.
+'Test.py' contains the 'getTest()' method.
+
 Dependencies include:
 
 Name: numpy
