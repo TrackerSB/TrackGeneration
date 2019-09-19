@@ -14,10 +14,27 @@ def writeCriteria(track0):
     p2 = track0[1]
     diff = p2 - p1
     orientation = round(math.atan2(diff[1], diff[0]) * 180 / math.pi, 2)
+    succIdx = int((len(track0) / 4) * 3)
+    succPoint = track0[succIdx]
+
+    succ1 = succPoint + [10, 10]
+    succ2 = succPoint + [-10, 10]
+    succ3 = succPoint + [-10, -10]
+    succ4 = succPoint + [10, -10]
+
+    succ1X = int(succ1[0])
+    succ1Y = int(succ1[1])
+    succ2X = int(succ2[0])
+    succ2Y = int(succ2[1])
+    succ3X = int(succ3[0])
+    succ3Y = int(succ3[1])
+    succ4X = int(succ4[0])
+    succ4Y = int(succ4[1])
+
     file = open("criteria.xml", "w")
     file.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><criteria xmlns=\"http://drivebuild.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://drivebuild.com drivebuild.xsd\"><author>Sebastian Asen</author><name>Track Test</name><version>1</version><environment>track_0.xml</environment><stepsPerSecond>10</stepsPerSecond><aiFrequency>50</aiFrequency><participants><participant id=\"ego\" model=\"ETK800\">")
     file.write(f"<initialState x=\"0\" y=\"0\" orientation=\"{orientation}\" movementMode=\"AUTONOMOUS\"/>")
-    file.write("<ai><position id=\"egoPosition\"/><speed id=\"egoSpeed\"/><steeringAngle id=\"egoSteeringAngle\"/><camera id=\"egoFrontCamera\" width=\"800\" height=\"600\" fov=\"60\" direction=\"FRONT\"/><lidar id=\"egoLidar\" radius=\"200\"/><laneCenterDistance id=\"egoLaneDist\"/></ai></participant></participants><success><scArea participant=\"ego\" points=\"(10,10);(-10,10);(-10,-10);(10,-10)\"/></success><failure><or><scDamage participant=\"ego\"/><scLane participant=\"ego\" onLane=\"offroad\"/></or></failure></criteria>")
+    file.write(f"<ai><position id=\"egoPosition\"/><speed id=\"egoSpeed\"/><steeringAngle id=\"egoSteeringAngle\"/><camera id=\"egoFrontCamera\" width=\"800\" height=\"600\" fov=\"60\" direction=\"FRONT\"/><lidar id=\"egoLidar\" radius=\"200\"/><laneCenterDistance id=\"egoLaneDist\"/></ai></participant></participants><success><scArea participant=\"ego\" points=\"({succ1X},{succ1Y});({succ2X},{succ2Y});({succ3X},{succ3Y});({succ4X},{succ4Y})\"/></success><failure><or><scDamage participant=\"ego\"/><scLane participant=\"ego\" onLane=\"offroad\"/></or></failure></criteria>")
     file.close()
     
 
@@ -37,7 +54,7 @@ def writeTrack(track, nr):
 def GenerateTrack(trackLength, sampleRate, show, startBeamNG):  
     populationSize = 100
     maxAcc = 1
-
+   
     times = 20
     relNewSize = 0.6
 
@@ -54,7 +71,7 @@ def GenerateTrack(trackLength, sampleRate, show, startBeamNG):
     pop = evolve(pop, times, relNewSize, duplicatesThreshold,
            intersectionDelta, mutationProb, mutationDeviation, 10)
 
-    print("eliminating intersecting tracks")
+    print("eliminating intersecting tracks")    
     pop = elminateIntersecting(pop, intersectionDelta)
 
     if show:
